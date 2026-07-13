@@ -5,19 +5,19 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-echo -e "\n\n\e[1;33mWelcome to Arch Deckify Script\e[0m"
+echo -e "\n\n\e[1;33mWelcome to fedora Deckify Script\e[0m"
 dm=$(basename "$(readlink /etc/systemd/system/display-manager.service)")
 
 if [[ "$dm" != "sddm.service" ]]; then
-    echo -e "\e[31m[ERROR] \e[0mSDDM is not found. (see: https://unlbslk.github.io/arch-deckify/issues/#what-is-the-sddm-and-how-can-i-install-it)\n"
+    echo -e "\e[31m[ERROR] \e[0mSDDM is not found. (see: https://tuneduptechie.github.io/fedora-deckify/issues/#what-is-the-sddm-and-how-can-i-install-it)\n"
     read -p "Do you want to install SDDM? (y/n): " sddmread
 
     if [[ "$sddmread" == "y" || "$sddmread" == "Y" ]]; then
-        if pacman -Qi sddm &> /dev/null; then
+        if dnf list --installed | grep sddm &> /dev/null; then
         echo "SDDM is already installed."
         else
-            sudo pacman -S sddm --noconfirm
-            if ! pacman -Qi sddm &> /dev/null; then
+            sudo dnf install sddm --noconfirm
+            if ! dnf list --installed | grep sddm &> /dev/null; then
                 echo -e "\e[91mERROR:\e[0m SDDM is not installed"
                 exit 1
             fi
@@ -55,37 +55,6 @@ while true; do
   fi
 done
 
-echo -e "\n\e[36m [1/18]\e[0m Checking if yay or paru is installed...\n"
-
-if command -v yay &> /dev/null; then
-    echo "Yay is already installed. (SKIPPED)"
-elif command -v paru &> /dev/null; then
-    echo "Paru is already installed. (SKIPPED)"
-else
-    echo "Neither yay nor paru found. Installing yay..."
-    sudo pacman -S --needed base-devel git --noconfirm
-
-    cd ~
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si --noconfirm
-
-    if command -v yay &> /dev/null; then
-        echo "Yay has been successfully installed."
-    else
-        echo "Failed to install yay."
-        exit 1
-    fi
-fi
-
-echo -e "\n\e[36m [2/18]\e[0m Checking and enabling multilib repository...\n"
-if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
-    echo "Enabling multilib repository..."
-    echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf
-    echo "Enabled."
-else
-    echo "Multilib repository is already enabled. (SKIPPED)"
-fi
 
 echo -e "\n\e[36m [3/18]\e[0m Updating the system...\n"
 sudo pacman -Syu --noconfirm
@@ -99,7 +68,7 @@ else
 fi
 
 if pacman -Qq | grep -x "gamescope-session-cachyos" &> /dev/null; then
-    echo -e "\n\e[31m[WARNING] \e[1;93mThe gamescope-session-cachyos package is installed on your system. This package conflicts with the gamescope-session-steam-git package you are about to install.\n\n\e[1;30m- If you decide to uninstall the Arch-Deckify script in the future, the gamescope-session-cachyos package will NOT be reinstalled. In that case, you can reinstall it using the command: sudo pacman -S gamescope-session-cachyos\e[0m\n"
+    echo -e "\n\e[31m[WARNING] \e[1;93mThe gamescope-session-cachyos package is installed on your system. This package conflicts with the gamescope-session-steam-git package you are about to install.\n\n\e[1;30m- If you decide to uninstall the fedora-Deckify script in the future, the gamescope-session-cachyos package will NOT be reinstalled. In that case, you can reinstall it using the command: sudo pacman -S gamescope-session-cachyos\e[0m\n"
     read -p "To continue the installation, the package must be uninstalled. Do you want to uninstall it (y/n): " answ
 
     if [[ "$answ" == "y" || "$answ" == "Y" ]]; then
@@ -116,7 +85,8 @@ if pacman -Qq | grep -x "gamescope-session-cachyos" &> /dev/null; then
 
 fi
 
-echo -e "\n\e[36m [5/18]\e[0m Installing gamescope-session-steam-git from AUR...\n"
+#Change to use https://github.com/OpenGamingCollective/gamescope-session-steam/tree/main/usr/bin instead. 
+echo -e "\n\e[36m [5/18]\e[0m Cloning and installing gamescope-session-steam from Github...\n"
 yay -S --aur gamescope-session-steam-git --noconfirm --sudoloop || paru -S --aur gamescope-session-steam-git --noconfirm
 
 if ! pacman -Qq | grep -x "gamescope-session-steam-git" &> /dev/null; then
@@ -243,14 +213,14 @@ if ! grep -q 'ACTION=="add", SUBSYSTEM=="backlight"' /etc/udev/rules.d/backlight
 fi
 echo -e "\n\e[36m [15/18]\e[0m Creating Gaming Mode shortcut icon...\n"
 
-mkdir ~/arch-deckify
-if [ ! -f ~/arch-deckify/steam-gaming-return.png ]; then
-  wget -P ~/arch-deckify/ https://raw.githubusercontent.com/unlbslk/arch-deckify/refs/heads/main/icons/steam-gaming-return.png
+mkdir ~/fedora-deckify
+if [ ! -f ~/fedora-deckify/steam-gaming-return.png ]; then
+  wget -P ~/fedora-deckify/ https://raw.githubusercontent.com/tuneduptechie/fedora-deckify/refs/heads/main/icons/steam-gaming-return.png
 else
   echo "Icon already exists. (SKIPPED)"
 fi
-if [ ! -f ~/arch-deckify/helper.png ]; then
-  wget -P ~/arch-deckify/ https://raw.githubusercontent.com/unlbslk/arch-deckify/refs/heads/main/icons/helper.png
+if [ ! -f ~/fedora-deckify/helper.png ]; then
+  wget -P ~/fedora-deckify/ https://raw.githubusercontent.com/tuneduptechie/fedora-deckify/refs/heads/main/icons/helper.png
 else
   echo "Icon already exists. (SKIPPED)"
 fi
@@ -260,7 +230,7 @@ if [ ! -e "$(xdg-user-dir DESKTOP)/Return_to_Gaming_Mode.desktop" ]; then
     echo "[Desktop Entry]
 Name=Gaming Mode
 Exec=steamos-session-select gamescope
-Icon=$HOME/arch-deckify/steam-gaming-return.png
+Icon=$HOME/fedora-deckify/steam-gaming-return.png
 Terminal=false
 Type=Application
 StartupNotify=false" > "$(xdg-user-dir DESKTOP)/Return_to_Gaming_Mode.desktop"
@@ -269,8 +239,8 @@ fi
 if [ ! -e "$(xdg-user-dir DESKTOP)/Deckify_Tools.desktop" ]; then
     echo "[Desktop Entry]
 Name=Deckify Helper
-Exec=bash -c 'curl -sSL https://raw.githubusercontent.com/unlbslk/arch-deckify/refs/heads/main/gui_helper.sh | bash'
-Icon=$HOME/arch-deckify/helper.png
+Exec=bash -c 'curl -sSL https://raw.githubusercontent.com/tuneduptechie/fedora-deckify/refs/heads/main/gui_helper.sh | bash'
+Icon=$HOME/fedora-deckify/helper.png
 Terminal=true
 Type=Application
 StartupNotify=false" > "$(xdg-user-dir DESKTOP)/Deckify_Tools.desktop"
@@ -284,7 +254,7 @@ if [ ! -e "/usr/share/applications/Return_to_Gaming_Mode.desktop" ]; then
     echo "[Desktop Entry]
 Name=Gaming Mode
 Exec=steamos-session-select gamescope
-Icon=$HOME/arch-deckify/steam-gaming-return.png
+Icon=$HOME/fedora-deckify/steam-gaming-return.png
 Terminal=false
 Type=Application
 StartupNotify=false" > "$(xdg-user-dir)/Return_to_Gaming_Mode.desktop"
@@ -296,8 +266,8 @@ fi
 if [ ! -e "/usr/share/applications/Deckify_Tools.desktop" ]; then
 echo "[Desktop Entry]
 Name=Deckify Helper
-Exec=bash -c 'curl -sSL https://raw.githubusercontent.com/unlbslk/arch-deckify/refs/heads/main/gui_helper.sh | bash'
-Icon=$HOME/arch-deckify/helper.png
+Exec=bash -c 'curl -sSL https://raw.githubusercontent.com/tuneduptechie/fedora-deckify/refs/heads/main/gui_helper.sh | bash'
+Icon=$HOME/fedora-deckify/helper.png
 Terminal=true
 Type=Application
 StartupNotify=false" > "$(xdg-user-dir)/Deckify_Tools.desktop"
@@ -314,7 +284,7 @@ sudo systemctl start bluetooth.service
 echo -e "\n\e[36m [17/18]\e[0m Bluetooth service enabled and started.\n"
 
 
-update_script_path="$HOME/arch-deckify/system_update.sh"
+update_script_path="$HOME/fedora-deckify/system_update.sh"
 cat <<EOL > "$update_script_path"
 #!/bin/bash
 AUR_HELPER=""; UPDATE_CMD=""; command -v yay &>/dev/null && AUR_HELPER="yay" && UPDATE_CMD="yay -Syu --sudoloop --noconfirm" || { command -v paru &>/dev/null && AUR_HELPER="paru" && UPDATE_CMD="paru -Syu --noconfirm"; }; [ -z "\$AUR_HELPER" ] && echo -e "\e[91mError: Neither yay nor paru is installed.\e[0m" && sleep 10 && exit 1; (konsole -e bash -c "clear; echo -e '\n\n\e[94mEnter your sudo password:\nYou can open keyboard by pressing GUIDE+X or PS+SQUARE on controller.\n\n\e[0m'; sudo rm -rf /var/lib/pacman/db.lck; \$UPDATE_CMD; echo -e '\n\e[96mSystem packages have been updated.\e[0m'; if flatpak --version &>/dev/null; then echo -e '\n\e[96mUpdating Flathub...\e[0m'; flatpak update -y; echo -e '\e[93mFlatpak updated.\e[0m'; else echo 'Skipped Flatpak.'; fi; echo -e '\e[93mFinished. This window will be closed in 5 seconds...\e[0m'; sleep 5; exit") || (gnome-terminal -- bash -c "clear; echo -e '\n\n\e[94mEnter your sudo password:\nYou can open keyboard by pressing GUIDE+X or PS+SQUARE on controller.\n\n\e[0m'; sudo rm -rf /var/lib/pacman/db.lck; \$UPDATE_CMD; echo -e '\e[96mSystem packages have been updated.\e[0m'; if flatpak --version &>/dev/null; then echo -e '\n\e[96mUpdating Flathub...\e[0m'; flatpak update -y; echo -e '\e[93mFlatpak updated.\e[0m'; else echo 'Skipped Flatpak.'; fi; echo -e '\n\e[93mExecuted. This window will be closed in 5 seconds...\e[0m\n'; sleep 5; exit") || (kgx -- bash -c "clear; echo -e '\n\n\e[94mEnter your sudo password:\nYou can open keyboard by pressing GUIDE+X or PS+SQUARE on controller.\n\n\e[0m'; sudo rm -rf /var/lib/pacman/db.lck; \$UPDATE_CMD; echo -e '\e[96mSystem packages have been updated.\e[0m'; if flatpak --version &>/dev/null; then echo -e '\n\e[96mUpdating Flathub...\e[0m'; flatpak update -y; echo -e '\e[93mFlatpak updated.\e[0m'; else echo 'Skipped Flatpak.'; fi; echo -e '\n\e[93mExecuted. This window will be closed in 5 seconds...\e[0m\n'; sleep 5; pkill kgx") || (kitty bash -c "clear; echo -e '\n\n\e[94mEnter your sudo password:\nYou can open keyboard by pressing GUIDE+X or PS+SQUARE on controller.\n\n\e[0m'; sudo rm -rf /var/lib/pacman/db.lck; \$UPDATE_CMD; echo -e '\e[96mSystem packages have been updated.\e[0m'; if flatpak --version &>/dev/null; then echo -e '\n\e[96mUpdating Flathub...\e[0m'; flatpak update -y; echo -e '\e[93mFlatpak updated.\e[0m'; else echo 'Skipped Flatpak.'; fi; echo -e '\n\e[93mExecuted. This window will be closed in 5 seconds...\e[0m\n'; sleep 5; exit") || (alacritty -e bash -c "clear; echo -e '\n\n\e[94mEnter your sudo password:\nYou can open keyboard by pressing GUIDE+X or PS+SQUARE on controller.\n\n\e[0m'; sudo rm -rf /var/lib/pacman/db.lck; \$UPDATE_CMD; echo -e '\e[96mSystem packages have been updated.\e[0m'; if flatpak --version &>/dev/null; then echo -e '\n\e[96mUpdating Flathub...\e[0m'; flatpak update -y; echo -e '\e[93mFlatpak updated.\e[0m'; else echo 'Skipped Flatpak.'; fi; echo -e '\n\e[93mExecuted. This window will be closed in 5 seconds...\e[0m\n'; sleep 5; exit")
@@ -322,6 +292,6 @@ EOL
 chmod +x "$update_script_path"
 echo -e "\n\e[36m [18/18]\e[0m 'system_update.sh' has been added to $update_script_path\n"
 echo -e "\n\n\e[1;33mInstallation is complete.\e[0m"
-echo -e "\n\e[1;30mIf you encounter an issue, check here:\e[0m https://unlbslk.github.io/arch-deckify/issues/"
-echo -e "\n\e[37mYou can update the system in Steam by adding the\e[0m ~/arch-deckify/system_update.sh \e[37mfile to Steam as a non-Steam game while in desktop mode.\nUnfortunately, system updates are not possible through Steam settings.\e[0m\n"
+echo -e "\n\e[1;30mIf you encounter an issue, check here:\e[0m https://tuneduptechie.github.io/fedora-deckify/issues/"
+echo -e "\n\e[37mYou can update the system in Steam by adding the\e[0m ~/fedora-deckify/system_update.sh \e[37mfile to Steam as a non-Steam game while in desktop mode.\nUnfortunately, system updates are not possible through Steam settings.\e[0m\n"
 echo -e "\e[1;37m- We strongly recommend that you restart your system first (it will boot into desktop mode)\n- If you haven't logged in to Steam yet, logging in is recommended before switching to gaming mode\n- If you get stuck on a black screen when switching to game mode, please wait. Steam may be downloading files during the initial startup\n- If you get stuck in game mode, check the issues page\n- You may get stuck in game mode; in that case, check the issues page above\n- To remove the script from your system, click the Deckify Helper shortcut and select the Uninstall option\e[0m\n"

@@ -8,8 +8,10 @@
 	<p>
 </div>
 
-# 🎮 Arch-Deckify
-A script to easily set up a SteamOS-like gaming environment on Arch Linux.
+# ACTIVE WORK IN PROGRESS
+
+# 🎮 Fedora-Deckify
+A script to easily set up a SteamOS-like gaming environment on Fedora Linux.
 This script is designed to bring SteamOS-style session switching to Arch Linux. It automates the installation and setup of a **Gaming Mode (Gamescope)** and a **Desktop Mode (Wayland session)**, along with configuration for **SDDM** and several optional components.
 > 🌐 For more information, see the documents page: https://unlbslk.github.io/arch-deckify/
 ## 📌 Features:
